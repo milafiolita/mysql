@@ -4,7 +4,6 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-
 var index = require('./routes/index');
 var users = require('./routes/users');
 
@@ -99,11 +98,13 @@ app.get('/students', function(req, res) {
       for (var i = 0; i < rows.length; i++) {
         var gender = getStudentGender(rows, rows[i].gender);
         var dateOfBirth = formatDate(rows[i].date_of_birth);
+        var admission_date = formatDate(rows[i].admission_date);
 
         // Create an object to save current row's data
         var students = {
           'student_id':rows[i].student_id,
           'name':rows[i].name,
+          'admission_date':admission_date,
           'address':rows[i].address,
           'gender':gender,
           'date_of_birth':dateOfBirth
@@ -118,6 +119,97 @@ app.get('/students', function(req, res) {
   });
 });
 
+function dataAdapter(obj, cols)  {
+  const charData = [cols];
+
+  for (rows in data) {
+    const temp = [];
+    for (prop in cols) {
+      temp.push(prop)
+    }
+    charData.push(temp);
+  }
+}
+
+function transpose(original) {
+  var copy = [];
+  for (var i = 0; i < original.length; ++i) {
+      for (var j = 0; j < original[i].length; ++j) {
+          // skip undefined values to preserve sparse array
+          if (original[i][j] === undefined) continue;
+          // create row if it doesn't exist yet
+          if (copy[j] === undefined) copy[j] = [];
+          // swap the x and y coords for the copy
+          copy[j][i] = original[i][j];
+      }
+  }
+  return copy;
+  }
+
+app.get('/statistics', function(req, res)  {
+  var getBulan = []; getJml = []; jmlBulan=[]; hasilJmlBulan=[]; getGen = []; getJmlGen = []; jmlGen=[]; hasilJmlGen=[];
+  con.query('SELECT month,COUNT(frek) as frek FROM student_chart GROUP BY month', function(err, rows, fields) {
+    if (err) {
+      console.log(err)
+    } else {
+      getBulan.push('month')
+      getJml.push('frek')
+      for (var j = 0 ; j < rows.length ; j++) {
+        if (rows[j].month === 1) {
+          getBulan.push('January')
+        } else if (rows[j].month === 2) {
+          getBulan.push('February')
+        } else if (rows[j].month === 3) {
+          getBulan.push('March')
+        } else if (rows[j].month === 4) {
+          getBulan.push('April')
+        } else if (rows[j].month === 5) {
+          getBulan.push('May')
+        } else if (rows[j].month === 6) {
+          getBulan.push('June')
+        } else if (rows[j].month === 7) {
+          getBulan.push('July')
+        } else if (rows[j].month === 8) {
+          getBulan.push('August')
+        } else if (rows[j].month === 9) {
+          getBulan.push('September')
+        } else if (rows[j].month === 10) {
+          getBulan.push('October')
+        } else if (rows[j].month === 11) {
+          getBulan.push('November')
+        } else {
+          getBulan.push('December')
+        }       
+        getJml.push(rows[j].frek)       
+      }
+      jmlBulan.push(getBulan,getJml)
+    }
+    var hasilJmlBulan = transpose(jmlBulan);  
+    console.log(hasilJmlBulan);
+
+    con.query('SELECT gender, count(gender) as jml FROM students GROUP BY gender', function(err, rows, fields) {
+      if (err) {
+        console.log(err)
+      } else {
+        getGen.push('gender')
+        getJmlGen.push('frek gend')
+        for (var j = 0 ; j < rows.length ; j++) {
+          if (rows[j].gender === 'F') {
+            getGen.push('FEMALE')
+          } else {
+            getGen.push('MALE')
+          }
+          getJmlGen.push(rows[j].jml)       
+        }
+        jmlGen.push(getGen,getJmlGen)
+      }
+      var hasilJmlGen = transpose(jmlGen);  
+      console.log(hasilJmlGen);
+      res.render('statistic',{obj1: JSON.stringify(hasilJmlBulan), obj2: JSON.stringify(hasilJmlGen)});
+    })  
+  })  
+});
+
 app.get('/input', (req, res) =>
    res.render('input.pug')
 );
@@ -130,6 +222,7 @@ app.post('/input', function(req, res) {
    name: req.body.name,
    address: req.body.address,
    date_of_birth: formatDateForMySQL(req.body.date_of_birth),
+   admission_date: new Date(),
    gender: req.body.gender
  };
 
@@ -172,10 +265,47 @@ app.get('/students/:id', function(req, res){
 	});
 });
 
-app.get('/delete/:id', function (req, res) {
+app.get('/students/delete/:id', function (req, res) {
   con.query('DELETE FROM students WHERE student_id = ?', [req.params.id], function(err, result) {
     if(err) throw err
     res.redirect('/students');
+  });
+});
+
+app.post('/search', function(req, res) {
+  var studentList = [];
+  var keyword = req.body.keyword;
+  var kolom = req.body.kolom;
+  var sortBy = req.body.sortBy;
+
+  // Do the query to get data.
+  con.query('SELECT * FROM students WHERE '+kolom+' LIKE \'%'+ keyword +'%\' ORDER BY '+kolom+' '+sortBy+'', function(err, rows, fields) {
+    if (err) {
+      res.status(500).json({"status_code": 500,"status_message": "internal server error"});
+    } else {
+      console.log(rows);
+
+      // Loop check on each row
+      for (var i = 0; i < rows.length; i++) {
+        var gender = getStudentGender(rows, rows[i].gender);
+        var dateOfBirth = formatDate(rows[i].date_of_birth);
+
+        // Create an object to save current row's data
+        var students = {
+          'student_id':rows[i].student_id,
+          'admission_date':rows[i].admission_date,
+          'name':rows[i].name,
+          'address':rows[i].address,
+          'gender':gender,
+          'date_of_birth':dateOfBirth
+        }
+        // Add object into array
+        studentList.push(students);
+    }
+
+    // Render index.pug page using array 
+    res.render('index', {title: 'Student List', data: studentList});
+    }
   });
 });
 
