@@ -6,6 +6,14 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var index = require('./routes/index');
 var users = require('./routes/users');
+var flash             = require('connect-flash');
+var crypto            = require('crypto');
+var passport          = require('passport');
+var LocalStrategy     = require('passport-local').Strategy;
+var sess              = require('express-session');
+var Store             = require('express-session').Store;
+var BetterMemoryStore = require('session-memory-store')(sess);
+
 
 var app = express();
 
@@ -18,7 +26,6 @@ var con = mysql.createConnection({
   database: "task1"
 });
 
-// view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
@@ -32,6 +39,78 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 app.use('/users', users);
+var store = new BetterMemoryStore({ expires: 60 * 60 * 1000, debug: true });
+
+app.use(sess({
+  name: 'JSESSION',
+  secret: 'MYSECRETISVERYSECRET',
+  store:  store,
+  resave: true,
+  saveUninitialized: true
+}));
+app.use(flash());
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use("local", new LocalStrategy({
+      usernameField: "username",
+      passwordField: "password",
+      passReqToCallback: true //passback entire req to call back
+    },
+    function(req, username, password, done) {
+      if (!username || !password) { 
+        return done(null,false,req.flash("message", "All fields are required."));
+      }
+
+      var salt = "7fa73b47df808d36c5fe328546ddef8b9011b2c6";
+      
+      con.query("select * from user where username = ?", [username], function(err, rows) {
+         // console.log(err);
+          console.log(rows);
+
+          if (err) return done(req.flash("message", err));
+
+          if (!rows.length) { return done(null, false, req.flash("message", "Invalid username or password."));
+          }
+
+          salt = salt + "" + password;
+
+          var encPassword = crypto.createHash("sha1").update(salt).digest("hex");
+
+          var dbPassword = rows[0].password;
+          
+          if (!(dbPassword == encPassword)) {
+            return done(null,false,req.flash("message", "Invalid username or password."));
+          }
+
+          return done(null, rows[0]);
+      });
+    })
+);
+
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(function(id, done) {
+  con.query("select * from user where id = ? ", [id], function(err,user) {
+    if (err) return done(err);
+    done(null, user);
+  });
+});
+
+app.post('/login', passport.authenticate('local', { successRedirect: '/students', failureRedirect: '/login', failureFlash: true }), function(req, res, info){
+  res.render('index', {'message' :req.flash('message')});
+});
+
+app.get('/login',function(req,res){
+  res.render('login', {'message' :req.flash('message')});
+});
+
+function isAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) return next();
+  res.redirect('/login');
+}
 
 function formatDateForPug(date) {
   var d = new Date(date),
@@ -78,13 +157,24 @@ function getStudentGender(rows, studentGender){
   return gender;
 }
 
+app.get('/logout',function(req,res){    
+  req.session.destroy(function(err){  
+      if(err){  
+        console.log(err);  
+      }  
+      else  
+      {  
+        res.redirect('/login');  
+      }  
+  });  
+});
 ///
 /// HTTP Method	: GET
 /// Endpoint 	: /person
 /// 
 /// To get collection of person saved in MySQL database.
 ///
-app.get('/students', function(req, res) {
+app.get('/students', isAuthenticated, function(req, res) {
   var studentList = [];
 
   // Do the query to get data.
@@ -146,7 +236,7 @@ function transpose(original) {
   return copy;
   }
 
-app.get('/statistics', function(req, res)  {
+app.get('/statistics', isAuthenticated, function(req, res)  {
   var getBulan = []; getJml = []; jmlBulan=[]; hasilJmlBulan=[]; getGen = []; getJmlGen = []; jmlGen=[]; hasilJmlGen=[];
   con.query('SELECT month,COUNT(frek) as frek FROM student_chart GROUP BY month', function(err, rows, fields) {
     if (err) {

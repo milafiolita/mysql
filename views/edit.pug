@@ -15,12 +15,17 @@ html
         span.navbar-toggler-icon
       #navbarNav.container.collapse.navbar-collapse
         ul.navbar-nav
-          li.nav-item.active
-            a.nav-link(href='/students')
+          li.nav-item
+            a.nav-link(href='/students', style='color: #f8f9fa;')
               | Students List 
               span.sr-only (current)
+          li.nav-item.active
+            a.nav-link(href='/statistics', style='color: #f8f9fa;')
+              | Statistics
+        ul.navbar-nav
           li.nav-item
-            a.nav-link(href='/statistics') Statistics
+            a.nav-link(href='/logout', style='color: #f8f9fa;')
+              | Logout
     .container.table-responsive.mt-5
       div(style='background-color: #ebebeb;')
         h2 Input New Students
