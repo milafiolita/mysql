@@ -21,6 +21,10 @@ html(lang='en')
             .form-group
               label(for='password') Password
               input#password.form-control(type='password', name='password', placeholder='Password')
+              |
+              - if(message){
+              p(style='color:red') #{message}
+              - }
             button.btn.btn-primary(type='submit') Login
             a.form-check-label.ml-3(href='/forgot', for='forgot') Forgot Password?
         .col-sm
