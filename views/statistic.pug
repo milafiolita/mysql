@@ -20,8 +20,8 @@ html
           title: '',
           'height':500,
           slices: {
-            0: { color: '#0d55a2' },
-            1: { color: '#680baf' }
+            0: { color: '#DB7093' },
+            1: { color: '#87CEEB' }
           }
         };
         var chart1 = new google.visualization.PieChart(document.getElementById('piechart'));
@@ -70,12 +70,13 @@ html
           li.nav-item
             a.nav-link(href='/logout', style='color: #f8f9fa;')
               | Logout
+              
   .container.mt-5
     // Div that will hold the pie chart
     div(style='background-color: #ebebeb;')
       h2 Gender Ratio
     #piechart
-    div(style='background-color: #ebebeb; mt-5')
+    div(style='background-color: #ebebeb;')
       h2 Students Chart
     .form-group.dropdown
       button.btn.btn-primary.dropdown-toggle(type='button', data-toggle='dropdown')
