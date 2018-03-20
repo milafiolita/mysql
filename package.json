@@ -6,7 +6,10 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "@sendgrid/mail": "^6.2.1",
     "alert-node": "^1.1.2",
+    "async": "^2.6.0",
+    "bcrypt-nodejs": "0.0.3",
     "body-parser": "~1.18.2",
     "connect-flash": "^0.1.1",
     "cookie-parser": "~1.4.3",
@@ -14,13 +17,18 @@
     "debug": "~2.6.9",
     "express": "~4.15.5",
     "express-session": "^1.15.6",
+    "express-validator": "^5.0.3",
     "memory": "0.0.3",
+    "moment": "^2.21.0",
     "morgan": "~1.9.0",
     "mysql": "^2.15.0",
+    "nodemailer": "^4.6.3",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
     "pug": "2.0.0-beta11",
+    "sendmail": "^1.4.0",
     "serve-favicon": "~2.4.5",
-    "session-memory-store": "^0.2.2"
+    "session-memory-store": "^0.2.2",
+    "sweetalert2": "^7.15.1"
   }
 }

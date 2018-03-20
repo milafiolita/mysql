@@ -20,9 +20,12 @@ html
               | Students List 
               span.sr-only (current)
           li.nav-item
-            a.nav-link(href='/statistics', style='color: #f8f9fa;')
+            a.nav-link(href='/statistics/2018', style='color: #f8f9fa;')
               | Statistics
         ul.navbar-nav
+          li.nav-item
+            a.nav-link(href='/addUser', style='color: #f8f9fa;')
+              i.fa.fa-plus
           li.nav-item
             a.nav-link(href='/logout', style='color: #f8f9fa;')
               | Logout
@@ -59,6 +62,7 @@ html
             th(scope='col')= 'Address'
             th(scope='col')= 'Gender'
             th(scope='col')= 'Date Of Birth'
+            th(scope='col')= 'Email'            
             th(scope='col')= 'Action'
         tbody
         for students in data
@@ -69,6 +73,7 @@ html
             td= students.address
             td= students.gender
             td= students.date_of_birth
+            td= students.student_email
             td
               a(href='/students/'+students.student_id)
                 button.btn.btn-success(type='button')
@@ -76,6 +81,7 @@ html
               a(href='#')
                 button.btn.btn-danger(type='button', onclick='hapus('+students.student_id+')')
                   i.fa.fa-trash
+                  
 // Modal
 #myModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='exampleModalLabel', aria-hidden='true')
   .modal-dialog(role='document')

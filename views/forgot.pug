@@ -12,17 +12,13 @@ html(lang='en')
       .row.mt-5
         .col-sm
         .col-sm.rounded.p-3(style='background-color: #80818878')
-          h1(align='center') Login
+          h1(align='center') Forgot Password
           hr
-          form.mt-3(action='/login', method='POST')
+          form.mt-3(action='/forgot', method='POST')
             .form-group
-              label(for='username') Username
-              input#username.form-control(type='text', name='username', aria-describedby='emailHelp', placeholder='Enter username')
-            .form-group
-              label(for='password') Password
-              input#password.form-control(type='password', name='password', placeholder='Password')
-            button.btn.btn-primary(type='submit') Login
-            a.form-check-label.ml-3(href='/forgot', for='forgot') Forgot Password?
+              label(for='username') Email
+              input#emailForgot.form-control(type='email', name='emailForgot', placeholder='Enter email')
+            button.btn.btn-primary(type='submit') Send
         .col-sm
     // Optional JavaScript
     // jQuery first, then Popper.js, then Bootstrap JS

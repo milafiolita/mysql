@@ -1,3 +1,4 @@
+doctype html
 html
   head
     meta(charset='utf-8')
@@ -8,36 +9,9 @@ html
     script(src='https://code.jquery.com/jquery-3.1.1.min.js')
     script(src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js', integrity='sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q', crossorigin='anonymous')
     script(src='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js', integrity='sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl', crossorigin='anonymous')
-    // Load the AJAX API
-    script(type='text/javascript', src='https://www.gstatic.com/charts/loader.js')
-    script(type='text/javascript').
-      // Load the Visualization API and the piechart package.
-      google.charts.load('current', {'packages':['corechart']});
-      // Set a callback to run when the Google Visualization API is loaded.
-      google.charts.setOnLoadCallback(drawChart);
-      function drawChart() {
-      var data = google.visualization.arrayToDataTable(!{obj2});
-      var options={
-      title:'',
-      is3D:true
-      }
-      // Instantiate and draw our chart, passing in some options.
-      var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
-      chart.draw(data, options);
-      }
-    script(type='text/javascript').
-      google.charts.load('current', {'packages':['corechart']});
-      google.charts.setOnLoadCallback(drawChart);
-      function drawChart() {
-      var data = google.visualization.arrayToDataTable(!{obj1});
-      var options = {
-      title: '',
-      curveType: true,
-      legend: { position: 'bottom' }
-      };
-      var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
-      chart.draw(data, options);
-      }
+    script(src='https://cdn.jsdelivr.net/npm/gijgo@1.8.2/combined/js/gijgo.min.js', type='text/javascript')
+    link(href='https://cdn.jsdelivr.net/npm/gijgo@1.8.2/combined/css/gijgo.min.css', rel='stylesheet', type='text/css')
+      
   body
     nav.navbar.navbar-expand-lg.navbar-light(style='background-color: #005c99;')
       button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbarTogglerDemo01', aria-controls='navbarTogglerDemo01', aria-expanded='false', aria-label='Toggle navigation')
@@ -58,19 +32,21 @@ html
           li.nav-item
             a.nav-link(href='/logout', style='color: #f8f9fa;')
               | Logout
-  .container.mt-5
-    // Div that will hold the pie chart
-    div(style='background-color: #ebebeb;')
-      h2 Gender Ratio
-    #chart_div
-    div(style='background-color: #ebebeb; mt-5')
-      h2 Students Chart
-    .form-group.dropdown
-      button.btn.btn-primary.dropdown-toggle(type='button', data-toggle='dropdown')
-        | Years
-      .dropdown-menu
-        a.dropdown-item(href='/statistics/2016') 2016
-        a.dropdown-item(href='/statistics/2017') 2017
-        a.dropdown-item(href='/statistics/2018') 2018
-                              
-    #curve_chart
+    .container.table-responsive.mt-5
+      div(style='background-color: #ebebeb;')
+        h2 Add New User
+      form.shadow-md.w-full.mt-5(action='/addUser', method='POST')
+        .form-group.row
+          label.col-sm-2.col-form-label(for='username') Username
+          .col-sm-10
+            input#name.form-control(type='text', name='username', required='')
+        .form-group.row
+          label.col-sm-2.col-form-label(for='user_email') User Email
+          .col-sm-10
+            input#student_email.form-control(type='email', name='user_email', required='')
+        .form-group.row
+          label.col-sm-2.col-form-label(for='password') Password
+          .col-sm-10
+            input#name.form-control(type='text', name='password', required='')
+        .col-sm-10
+          input.btn.btn-info(type='submit', value='Input')

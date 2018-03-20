@@ -42,8 +42,9 @@ CREATE TABLE `students` (
   `address` varchar(150) NOT NULL,
   `gender` enum('F','M') NOT NULL,
   `date_of_birth` date NOT NULL,
+  `student_email` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`student_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -52,7 +53,7 @@ CREATE TABLE `students` (
 
 LOCK TABLES `students` WRITE;
 /*!40000 ALTER TABLE `students` DISABLE KEYS */;
-INSERT INTO `students` VALUES (1,'2017-01-10','Mila Fiolita','Semarang','F','1995-06-01'),(2,'2017-01-12','Septiana Adityarini','Semarang','F','1995-09-24'),(3,'2017-02-02','Vika Astriani','Semarang','F','1995-03-03'),(4,'2017-02-10','Reni Puji L','Solo','F','1996-05-06'),(5,'2017-02-21','Rully Indra','Yogyakarta','F','1996-02-02'),(6,'2017-03-08','Andre Bagus','Kediri','M','1995-03-02'),(7,'2017-03-16','Tomy Soeharto','Ungaran','M','1995-11-10'),(8,'2017-03-31','Hendry Ainur','Surabaya','M','1995-12-17'),(9,'2017-04-22','Qisti Rahmatillah','Indramayu','F','1995-05-17'),(10,'2017-04-30','Dyah Ayu','Wonogiri','F','1995-04-20'),(11,'2018-03-13','Ivanda','Magelang','M','1995-08-23');
+INSERT INTO `students` VALUES (1,'2017-01-10','Mila Fiolita','Semarang','F','1995-06-01',NULL),(2,'2017-01-12','Septiana Adityarini','Semarang','F','1995-09-24',NULL),(3,'2017-02-02','Vika Astriani','Semarang','F','1995-03-03',NULL),(4,'2017-02-10','Reni Puji L','Solo','F','1996-05-06',NULL),(5,'2017-02-21','Rully Indra','Yogyakarta','F','1996-02-02',NULL),(6,'2017-03-08','Andre Bagus','Kediri','M','1995-03-02',NULL),(7,'2017-03-16','Tomy Soeharto','Ungaran','M','1995-11-10',NULL),(8,'2017-03-31','Hendry Ainur','Surabaya','M','1995-12-17',NULL),(9,'2017-04-22','Qisti Rahmatillah','Indramayu','F','1995-05-17',NULL),(10,'2017-04-30','Dyah Ayu','Wonogiri','F','1995-04-20',NULL),(11,'2017-05-13','Ivanda','Magelang','M','1995-08-23',NULL),(12,'2017-05-13','Tyok','Ungaran','M','1995-11-15',NULL),(13,'2017-05-13','Fandi Rahman','Kendal','M','1995-01-17',NULL),(14,'2018-03-16','Hana','Jogja','F','1995-06-13',NULL),(15,'2018-03-16','Eko','Jogja','M','1995-12-21',NULL);
 /*!40000 ALTER TABLE `students` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -67,8 +68,10 @@ CREATE TABLE `user` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `username` varchar(200) NOT NULL,
   `password` varchar(200) NOT NULL,
+  `user_email` varchar(100) NOT NULL,
+  `user_forgot` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -77,7 +80,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,'admin','89055a41e73fc65094b0106145e9eb78e6da4e30');
+INSERT INTO `user` VALUES (1,'admin','89055a41e73fc65094b0106145e9eb78e6da4e30','milafiolita01@gmail.com','0ad2194fee44ce05d2610dddf5607f9ed33b0bb1'),(2,'rully','c4f9390950f0360df55661efde6480a73f74a25d','rullyindraa@gmail.com',NULL);
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -108,4 +111,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-03-15 12:06:00
+-- Dump completed on 2018-03-20 10:04:40

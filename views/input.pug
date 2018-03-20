@@ -9,6 +9,13 @@ html
     script(src='https://code.jquery.com/jquery-3.1.1.min.js')
     script(src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js', integrity='sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q', crossorigin='anonymous')
     script(src='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js', integrity='sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl', crossorigin='anonymous')
+    script(src='https://cdn.jsdelivr.net/npm/gijgo@1.8.2/combined/js/gijgo.min.js', type='text/javascript')
+    link(href='https://cdn.jsdelivr.net/npm/gijgo@1.8.2/combined/css/gijgo.min.css', rel='stylesheet', type='text/css')
+    script.
+      $( function() {
+      $( ".datepicker" ).datepicker();
+      } );
+      
   body
     nav.navbar.navbar-expand-lg.navbar-light(style='background-color: #005c99;')
       button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbarTogglerDemo01', aria-controls='navbarTogglerDemo01', aria-expanded='false', aria-label='Toggle navigation')
@@ -20,9 +27,12 @@ html
               | Students List 
               span.sr-only (current)
           li.nav-item.active
-            a.nav-link(href='/statistics', style='color: #f8f9fa;')
+            a.nav-link(href='/statistics/2018', style='color: #f8f9fa;')
               | Statistics
         ul.navbar-nav
+          li.nav-item
+            a.nav-link(href='/addUser', style='color: #f8f9fa;')
+              i.fa.fa-plus
           li.nav-item
             a.nav-link(href='/logout', style='color: #f8f9fa;')
               | Logout
@@ -44,10 +54,32 @@ html
         .form-group.row
           label.col-sm-2.col-form-label(for='date_of_birth') Date Of Birth
           .col-sm-10
-            input#date_of_birth.form-control(type='date', name='date_of_birth', required='')
+            input#date_of_birth.form-control.datepicker(type='text', name='date_of_birth', required='')
+        .form-group.row
+          label.col-sm-2.col-form-label(for='student_email') Student Email
+          .col-sm-10
+            input#student_email.form-control(type='email', name='student_email', required='')
+        .form-group.row
+          label.col-sm-2.col-form-label(for='adminis') Admission Date
+          .col-sm-10
+            input#admiss.form-control(type='text', name='adminis', disabled='')
         .form-group.row
           label.col-sm-2.col-form-label(for='date_of_birth') Address
           .col-sm-10
             textarea#address.form-control(name='address', required='')
         .col-sm-10
           input.btn.btn-info(type='submit', value='Input')
+script(type='text/javascript').
+  document.getElementById('admiss').value = formatDate(new Date());
+  function formatDate(date) {
+  var monthNames = [
+  "January", "February", "March",
+  "April", "May", "June", "July",
+  "August", "September", "October",
+  "November", "December"
+  ];
+  var day = date.getDate();
+  var monthIndex = date.getMonth();
+  var year = date.getFullYear();
+  return day + ' ' + monthNames[monthIndex] + ' ' + year;
+  }
