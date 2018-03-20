@@ -26,7 +26,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);*/
 var transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'oksatriwahyu@gmail.com',
+    user: 'oksawahyu123@gmail.com',
     pass: 'oksaEdukreasi'
   }
 });
