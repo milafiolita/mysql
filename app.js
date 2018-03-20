@@ -26,7 +26,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);*/
 var transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'oksawahyu123@gmail.com',
+    user: 'oksatriwahyu@gmail.com',
     pass: 'oksaEdukreasi'
   }
 });
@@ -497,7 +497,7 @@ app.get('/fstudent', function(req, res) {
 });
 
 app.get('/addUser', (req, res) =>
-   res.render('addUser')
+   res.render('addUser.pug')
 );
 
 app.post('/addUser', function(req, res) {
@@ -524,7 +524,7 @@ app.post('/addUser', function(req, res) {
       } else {
         console.log(rows);
       }
-      res.redirect('/students');
+      res.redirect('/');
     });
   }
  });
