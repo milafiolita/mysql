@@ -331,13 +331,13 @@ function transpose(original) {
 
   app.get('/statistics/:years', isAuthenticated, function(req, res)  {
     var getBulan = []; getJml = []; jmlBulan=[]; hasilJmlBulan=[]; getGen = []; getJmlGen = []; jmlGen=[]; hasilJmlGen=[];
-    con.query('SELECT month(admission_date) as month, count(student_id) as frek FROM students WHERE year(admission_date)='+[req.params.years]+' group by month(admission_date)', function(err, rows, fields) {
+    con.query('SELECT month(admission_date) as month, count(*) as frek FROM students WHERE year(admission_date)='+[req.params.years]+' group by month(admission_date)', function(err, rows, fields) {
       if (err) {
         console.log(err)
       } else {
+        getBulan.push('month','January', 'February', 'March', 'April', 'Mei', 'June', 'July', 'August', 'September', 'October', 'November', 'December')
+        getJml.push('freks',0,0,0,0,0,0,0,0,0,0,0,0)
         for (var j = 0 ; j < rows.length ; j++) {
-          getBulan.push('month','January', 'February', 'March', 'April', 'Mei', 'June', 'July', 'August', 'September', 'October', 'November', 'December')
-          getJml.push('frek',0,0,0,0,0,0,0,0,0,0,0,0)
           var bulan = rows[j].month;
           getJml.fill(rows[j].frek, bulan, (bulan+1));       
         }
@@ -364,7 +364,7 @@ function transpose(original) {
         }
         var hasilJmlGen = transpose(jmlGen);  
         console.log(hasilJmlGen);
-        res.render('statistic',{obj1: JSON.stringify(hasilJmlBulan), obj2: JSON.stringify(hasilJmlGen)});
+        res.render('statistic',{obj1: JSON.stringify(hasilJmlGen), obj2: JSON.stringify(hasilJmlBulan)});
       })  
     })  
   });
