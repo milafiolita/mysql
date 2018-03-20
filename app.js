@@ -194,18 +194,23 @@ app.get('/reset/:token', function(req, res){
     }            
   });
 });
+
 app.post('/reset_password', function(req, res) {
   var password = req.body.password;
   var konfirm = req.body.konfirm;
   var id = req.body.id;
   
-  //var postData  = {student_id: student_id, name: name, address: address, gender: gender, date_of_birth: date_of_birth};
-  if (true) {}
-    con.query('UPDATE user SET password = ?, user_forgot = null WHERE id = ?', [password, id], function (error, results, fields) {
+  if (password == konfirm) {
+    var salt = '7fa73b47df808d36c5fe328546ddef8b9011b2c6';
+    salt = salt + "" + password;
+    var newPassword = crypto.createHash("sha1").update(salt).digest("hex");
+    con.query('UPDATE user SET user_forgot = null, password = ? WHERE id = ?', [newPassword, id], function (error, results, fields) {
       if (error) throw error;
       res.redirect('/login');
-  });
+    });
+  }
 });
+
 function isAuthenticated(req, res, next) {
   if (req.isAuthenticated()) return next();
   res.redirect('/login');
@@ -364,11 +369,11 @@ function transpose(original) {
     })  
   });
 
-app.get('/input', (req, res) =>
+app.get('/input', isAuthenticated, (req, res) =>
    res.render('input.pug')
 );
 
-app.post('/input', function(req, res) {
+app.post('/input', isAuthenticated, function(req, res) {
  //var studentList = [];
 
  var insertStudent = {
@@ -394,7 +399,7 @@ app.post('/input', function(req, res) {
  });
 });
 
-app.get('/students/:id', function(req, res){
+app.get('/students/:id', isAuthenticated, function(req, res){
 	con.query('SELECT * FROM students WHERE student_id = ?', [req.params.id], function(err, rows, fields) {
 		if(err) throw err
 		
@@ -421,7 +426,7 @@ app.get('/students/:id', function(req, res){
 	});
 });
 
-app.get('/students/delete/:id', function (req, res) {
+app.get('/students/delete/:id', isAuthenticated, function (req, res) {
   con.query('DELETE FROM students WHERE student_id = ?', [req.params.id], function(err, result) {
     if(err) throw err
     res.redirect('/students');
