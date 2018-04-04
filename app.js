@@ -1,44 +1,44 @@
-var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var validator = require('express-validator');
-var flash = require('connect-flash');
-var crypto = require('crypto');
-var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
-var sess = require('express-session');
-var flash  = require('connect-flash');
-var Store = require('express-session').Store;
-var BetterMemoryStore = require('session-memory-store')(sess);
-var index = require('./routes/index');
-var users = require('./routes/users');
-var bcrypt = require('bcrypt-nodejs');
-var async = require('async');
-var moment = require('moment');
-var app = express();
-var nodemailer = require('nodemailer');
+const mysql = require('mysql');
+const express = require('express');
+const path = require('path');
+const favicon = require('serve-favicon');
+const logger = require('morgan');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+const validator = require('express-validator');
+const flash = require('connect-flash');
+const crypto = require('crypto');
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const sess = require('express-session');
+const Store = require('express-session').Store;
+const BetterMemoryStore = require('session-memory-store')(sess);
+const index = require('./routes/index');
+const users = require('./routes/users');
+const bcrypt = require('bcrypt-nodejs');
+const async = require('async');
+const app = express();
+const moment = require('moment');
+const nodemailer = require('nodemailer');
+const env = process.env.NODE_ENV || 'development';
+const config = require('./config/config')[env];
+app.locals.moment = require('moment');
 /*const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);*/
 
 var transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'oksawahyu123@gmail.com',
-    pass: 'oksaEdukreasi'
+    user: config.auth.user,
+    pass: config.auth.pass
   }
 });
-var app = express();
 
-var mysql = require('mysql');
-
-var con = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "task1"
+const con = mysql.createConnection({
+  host: config.database.host,
+  user: config.database.user,
+  password: config.database.password,
+  database: config.database.db
 });
 
 app.set('views', path.join(__dirname, 'views'));
@@ -52,8 +52,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', index);
-app.use('/users', users);
+// app.use('/', index);
+// app.use('/users', users);
 var store = new BetterMemoryStore({ expires: 60 * 60 * 1000, debug: true });
 
 app.use(sess({
@@ -68,39 +68,38 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 passport.use("local", new LocalStrategy({
-      usernameField: "username",
-      passwordField: "password",
-      passReqToCallback: true //passback entire req to call back
-    },
-    function(req, username, password, done) {
-      if (!username || !password) { 
-        return done(null,false,req.flash("message", "All fields are required."));
+  usernameField: "username",
+  passwordField: "password",
+  passReqToCallback: true //passback entire req to call back
+  },
+  function(req, username, password, done) {
+    if (!username || !password) { 
+      return done(null,false,req.flash("message", "All fields are required."));
+    }
+
+    var salt = "7fa73b47df808d36c5fe328546ddef8b9011b2c6";
+      
+    con.query("select * from user where username = ?", [username], function(err, rows) {
+     // console.log(err);
+
+      if (err) return done(req.flash("message", err));
+
+      if (!rows.length) { return done(null, false, req.flash("message", "Invalid username or password."));
       }
 
-      var salt = "7fa73b47df808d36c5fe328546ddef8b9011b2c6";
-      
-      con.query("select * from user where username = ?", [username], function(err, rows) {
-         // console.log(err);
-          console.log(rows);
+      salt = salt + "" + password;
 
-          if (err) return done(req.flash("message", err));
+      var encPassword = crypto.createHash("sha1").update(salt).digest("hex");
 
-          if (!rows.length) { return done(null, false, req.flash("message", "Invalid username or password."));
-          }
-
-          salt = salt + "" + password;
-
-          var encPassword = crypto.createHash("sha1").update(salt).digest("hex");
-
-          var dbPassword = rows[0].password;
+      var dbPassword = rows[0].password;
           
-          if (!(dbPassword == encPassword)) {
-            return done(null,false,req.flash("message", "Invalid username or password."));
-          }
+      if (!(dbPassword == encPassword)) {
+        return done(null,false,req.flash("message", "Invalid username or password."));
+      }
 
-          return done(null, rows[0]);
-      });
-    })
+      return done(null, rows[0]);
+    });
+  })
 );
 
 passport.serializeUser(function(user, done) {
@@ -288,28 +287,8 @@ app.get('/students', isAuthenticated, function(req, res) {
     } else {
       console.log(rows);
 
-      // Loop check on each row
-      for (var i = 0; i < rows.length; i++) {
-        var gender = getStudentGender(rows, rows[i].gender);
-        var dateOfBirth = formatDate(rows[i].date_of_birth);
-        var admission_date = formatDate(rows[i].admission_date);
-
-        // Create an object to save current row's data
-        var students = {
-          'student_id':rows[i].student_id,
-          'name':rows[i].name,
-          'admission_date':admission_date,
-          'address':rows[i].address,
-          'gender':gender,
-          'date_of_birth':dateOfBirth,
-          'student_email':rows[i].student_email
-        }
-        // Add object into array
-        studentList.push(students);
-    }
-
     // Render index.pug page using array 
-    res.render('index', {title: 'Student List', data: studentList});
+    res.render('index', {title: 'Student List', data: rows});
     }
   });
 });
@@ -380,7 +359,7 @@ app.post('/input', isAuthenticated, function(req, res) {
    student_id: req.body.student_id,
    name: req.body.name,
    address: req.body.address,
-   date_of_birth: formatDateForMySQL(req.body.date_of_birth),
+   date_of_birth: moment(req.body.date_of_birth).format('YYYY-MM-DD'),
    admission_date: new Date(),
    gender: req.body.gender,
    student_email: req.body.student_email,
@@ -407,7 +386,7 @@ app.get('/students/:id', isAuthenticated, function(req, res){
 		if (rows.length <= 0) {
 				res.redirect('/students')
 		} else { 
-      var studentDoB = formatDate(rows[0].date_of_birth, 'mysql');
+      var studentDoB = moment(rows[0].date_of_birth).format('YYYY-MM-DD');
       console.log(studentDoB);
 
 			// if user found
@@ -419,7 +398,7 @@ app.get('/students/:id', isAuthenticated, function(req, res){
 				saddress: rows[0].address,
         sgender: rows[0].gender,
         student_email: rows[0].student_email,
-        sadmiss: formatDate(rows[0].admission_date),
+        sadmiss: moment(rows[0].admission_date).format('YYYY-MM-DD'),
 				sdob: studentDoB
 			})
 		}            
@@ -449,8 +428,8 @@ app.post('/search', function(req, res) {
     // Loop check on each row
     for (var i = 0; i < rows.length; i++) {
       var gender = getStudentGender(rows, rows[i].gender);
-      var dateOfBirth = formatDate(rows[i].date_of_birth);
-      var admission_date = formatDate(rows[i].admission_date);
+      var dateOfBirth = moment(rows[i].date_of_birth).format('YYYY-MM-DD');
+      var admission_date = moment(rows[i].admission_date).format('YYYY-MM-DD');
 
       // Create an object to save current row's data
       var students = {
@@ -460,7 +439,7 @@ app.post('/search', function(req, res) {
         'address':rows[i].address,
         'gender':gender,
         'date_of_birth':dateOfBirth,
-        'student_emai':rows[i].student_email,        
+        'student_email':rows[i].student_email
       }
       // Add object into array
       studentList.push(students);
@@ -483,7 +462,7 @@ app.post('/edit', function(req, res) {
 	var name = req.body.name;
 	var address = req.body.address;
 	var gender = req.body.gender;
-  var date_of_birth = formatDateForMySQL(req.body.date_of_birth);
+  var date_of_birth = moment(req.body.date_of_birth).format('YYYY-MM-DD');
   var student_email = req.body.student_email;
   var student_id = req.body.oldId;
 	console.log(student_id+''+name+' '+address+' '+gender+' '+date_of_birth+''+student_email);
@@ -534,6 +513,8 @@ app.post('/addUser', function(req, res) {
   }
  });
 });
+
+app.use('/', isAuthenticated, index);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
